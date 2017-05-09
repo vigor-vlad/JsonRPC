@@ -6,6 +6,7 @@ use Exception;
 use JsonRPC\Exception\AccessDeniedException;
 use JsonRPC\Exception\AuthenticationFailureException;
 use JsonRPC\Exception\InvalidJsonRpcFormatException;
+use JsonRPC\Logger\LoggerInterface;
 use JsonRPC\MiddlewareHandler;
 use JsonRPC\ProcedureHandler;
 use JsonRPC\Response\ResponseBuilder;
@@ -54,6 +55,14 @@ class RequestParser
      * @var MiddlewareHandler
      */
     protected $middlewareHandler;
+
+    /**
+     * Server call logger
+     *
+     * @access protected
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Get new object instance
@@ -125,6 +134,16 @@ class RequestParser
     }
 
     /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function withLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
      * Parse incoming request
      *
      * @access public
@@ -134,6 +153,8 @@ class RequestParser
      */
     public function parse()
     {
+        $response = '';
+        $startTime = round(microtime(true),5, PHP_ROUND_HALF_UP);
         try {
 
             JsonFormatValidator::validate($this->payload);
@@ -149,16 +170,29 @@ class RequestParser
             );
 
             if (! $this->isNotification()) {
-                return ResponseBuilder::create()
+                $response = ResponseBuilder::create()
                     ->withId($this->payload['id'])
                     ->withResult($result)
                     ->build();
             }
         } catch (Exception $e) {
-            return $this->handleExceptions($e);
+            $response = $this->handleExceptions($e);
         }
 
-        return '';
+        $endTime  = round(microtime(true),5, PHP_ROUND_HALF_UP);
+        $callTime = round(($endTime - $startTime),5, PHP_ROUND_HALF_UP);
+
+        if($this->logger){
+            $this->logger->log(
+                (empty($this->payload['id']) ? 0 : $this->payload['id']),
+                (empty($this->payload['method']) ? '' : $this->payload['method']),
+                (empty($this->payload['params']) ? array() : $this->payload['params']),
+                $response,
+                $callTime
+            );
+        }
+
+        return $response;
     }
 
     /**

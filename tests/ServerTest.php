@@ -23,6 +23,20 @@ class DummyMiddleware implements MiddlewareInterface
     }
 }
 
+class DummyLogger implements JsonRPC\Logger\LoggerInterface
+{
+    protected $logs = array();
+    public function log($id, $method, $params, $response, $timeTaken = 0, $metadata = array())
+    {
+        $this->logs[] = array('id' => $id,'method' => $method, 'params' => $params, 'response' => $response, 'metadata' => $metadata);
+    }
+
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+}
+
 class ServerTest extends HeaderMockTest
 {
     private $payload = '{"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"}';
@@ -89,6 +103,7 @@ class ServerTest extends HeaderMockTest
         $requestParser->method('withProcedureHandler')->willReturn($requestParser);
         $requestParser->method('withMiddlewareHandler')->willReturn($requestParser);
         $requestParser->method('withLocalException')->willReturn($requestParser);
+        $requestParser->method('withLogger')->willReturn($requestParser);
 
         $server = new Server($this->payload, array(), null, $requestParser);
 
@@ -107,6 +122,7 @@ class ServerTest extends HeaderMockTest
         $batchRequestParser->method('withProcedureHandler')->willReturn($batchRequestParser);
         $batchRequestParser->method('withMiddlewareHandler')->willReturn($batchRequestParser);
         $batchRequestParser->method('withLocalException')->willReturn($batchRequestParser);
+        $batchRequestParser->method('withLogger')->willReturn($batchRequestParser);
 
         $server = new Server('["...", "..."]', array(), null, null, $batchRequestParser);
 
@@ -140,6 +156,7 @@ class ServerTest extends HeaderMockTest
         $batchRequestParser->method('withProcedureHandler')->willReturn($batchRequestParser);
         $batchRequestParser->method('withMiddlewareHandler')->willReturn($batchRequestParser);
         $batchRequestParser->method('withLocalException')->willReturn($batchRequestParser);
+        $batchRequestParser->method('withLogger')->willReturn($batchRequestParser);
 
         $server = new Server('["...", "..."]', array(), null, null, $batchRequestParser, $procedureHandler);
 
@@ -254,5 +271,83 @@ class ServerTest extends HeaderMockTest
             ->with('Content-Type: application/json');
 
         $this->assertEquals('{"jsonrpc":"2.0","error":{"code":123,"message":"test","data":"more info"},"id":"1"}', $server->execute());
+    }
+
+    public function testLoggingWithResult()
+    {
+
+        $logger = new DummyLogger();
+        $server = new Server(
+            $this->payload,
+            [],
+            null,
+            null,
+            null,
+            null,
+            null,
+            $logger
+        );
+
+        $server->getProcedureHandler()->withCallback('sum', function($a, $b, $c) {
+            return $a + $b + $c;
+        });
+
+        $server->execute();
+        $this->assertEquals(
+            array(0 =>
+                  array('id'        => '1',
+                        'method'    => 'sum',
+                        'params'    =>
+                            array(
+                                0 => 1,
+                                1 => 2,
+                                2 => 4,
+                            ),
+                        'response'  => '{"jsonrpc":"2.0","result":7,"id":"1"}',
+                        'metadata'  =>
+                            array(),
+                  ),
+            ),
+            $logger->getLogs()
+        );
+    }
+
+    public function testLoggingWithException()
+    {
+
+        $logger = new DummyLogger();
+        $server = new Server(
+            $this->payload,
+            [],
+            null,
+            null,
+            null,
+            null,
+            null,
+            $logger
+        );
+
+        $server->getProcedureHandler()->withCallback('sum', function($a, $b, $c) {
+            throw new ResponseException('test', 123, null, 'more info');
+        });
+
+        $server->execute();
+        $this->assertEquals(
+            array(0 =>
+                  array('id'        => '1',
+                        'method'    => 'sum',
+                        'params'    =>
+                            array(
+                                0 => 1,
+                                1 => 2,
+                                2 => 4,
+                            ),
+                        'response'  => '{"jsonrpc":"2.0","error":{"code":123,"message":"test","data":"more info"},"id":"1"}',
+                        'metadata'  =>
+                            array(),
+                  ),
+            ),
+            $logger->getLogs()
+        );
     }
 }

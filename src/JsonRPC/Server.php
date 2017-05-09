@@ -4,6 +4,7 @@ namespace JsonRPC;
 
 use Closure;
 use Exception;
+use JsonRPC\Logger\LoggerInterface;
 use JsonRPC\Request\BatchRequestParser;
 use JsonRPC\Request\RequestParser;
 use JsonRPC\Response\ResponseBuilder;
@@ -117,16 +118,25 @@ class Server
     protected $batchRequestParser;
 
     /**
+     * Server call logger
+     *
+     * @access protected
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor
      *
      * @access public
-     * @param  string              $request
-     * @param  array               $server
-     * @param  ResponseBuilder     $responseBuilder
-     * @param  RequestParser       $requestParser
-     * @param  BatchRequestParser  $batchRequestParser
-     * @param  ProcedureHandler    $procedureHandler
-     * @param  MiddlewareHandler   $middlewareHandler
+     * @param  string $request
+     * @param  array $server
+     * @param  ResponseBuilder $responseBuilder
+     * @param  RequestParser $requestParser
+     * @param  BatchRequestParser $batchRequestParser
+     * @param  ProcedureHandler $procedureHandler
+     * @param  MiddlewareHandler $middlewareHandler
+     * @param LoggerInterface $logger
      */
     public function __construct(
         $request = '',
@@ -135,7 +145,8 @@ class Server
         RequestParser $requestParser = null,
         BatchRequestParser $batchRequestParser = null,
         ProcedureHandler $procedureHandler = null,
-        MiddlewareHandler $middlewareHandler = null
+        MiddlewareHandler $middlewareHandler = null,
+        LoggerInterface $logger = null
     ) {
         if ($request !== '') {
             $this->payload = json_decode($request, true);
@@ -149,6 +160,7 @@ class Server
         $this->batchRequestParser = $batchRequestParser ?: BatchRequestParser::create();
         $this->procedureHandler = $procedureHandler ?: new ProcedureHandler();
         $this->middlewareHandler = $middlewareHandler ?: new MiddlewareHandler();
+        $this->logger = $logger ?: new Logger\NullLogger();
     }
 
     /**
@@ -330,7 +342,7 @@ class Server
 
     /**
      * Handle exceptions
-     * 
+     *
      * @access protected
      * @param  Exception $e
      * @return string
@@ -361,6 +373,7 @@ class Server
                 ->withProcedureHandler($this->procedureHandler)
                 ->withMiddlewareHandler($this->middlewareHandler)
                 ->withLocalException($this->localExceptions)
+                ->withLogger($this->logger)
                 ->parse();
         }
 
@@ -369,6 +382,7 @@ class Server
             ->withProcedureHandler($this->procedureHandler)
             ->withMiddlewareHandler($this->middlewareHandler)
             ->withLocalException($this->localExceptions)
+            ->withLogger($this->logger)
             ->parse();
     }
 
