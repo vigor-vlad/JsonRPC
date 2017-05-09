@@ -67,6 +67,11 @@ class Api
     {
         return $arg1 + $arg2;
     }
+
+    public function doSomething2($arg1, $arg2)
+    {
+        return $arg1 * $arg2;
+    }
 }
 
 $server = new Server();
@@ -83,6 +88,12 @@ $procedureHandler->withClassAndMethod('doSomething', 'Api');
 
 // Attach the class, the client will be able to call directly Api::doSomething()
 $procedureHandler->withObject(new Api());
+
+// Attach a class as a service, so the client can call all the classess public methods
+// Client Examples:
+// $client->execute('apiService.doSomething', [3]);
+// $client->execute('apiService.doSomething2', [3, 5]);
+$procedureHandler->withServiceClass('apiService', 'Api');
 
 echo $server->execute();
 

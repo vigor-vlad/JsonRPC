@@ -10,6 +10,16 @@ class A
     {
         return $p1 + $p2 + $p3;
     }
+
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+
+    public function subtract($a, $b)
+    {
+        return $a - $b;
+    }
 }
 
 class B
@@ -17,6 +27,16 @@ class B
     public function getAll($p1)
     {
         return $p1 + 2;
+    }
+
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+
+    public function subtract($a, $b)
+    {
+        return $a - $b;
     }
 }
 
@@ -87,10 +107,21 @@ class ProcedureHandlerTest extends PHPUnit_Framework_TestCase
         $handler->withClassAndMethod('getAllA', 'A', 'getAll');
         $handler->withClassAndMethod('getAllB', 'B', 'getAll');
         $handler->withClassAndMethod('getAllC', new B, 'getAll');
+        $handler->withServiceClass('serviceA', 'A');
+        $handler->withServiceClass('serviceB', new B());
         $this->assertEquals(6, $handler->executeProcedure('getAllA', array('p2' => 4, 'p1' => -2)));
         $this->assertEquals(10, $handler->executeProcedure('getAllA', array('p2' => 4, 'p3' => 8, 'p1' => -2)));
         $this->assertEquals(6, $handler->executeProcedure('getAllB', array('p1' => 4)));
         $this->assertEquals(5, $handler->executeProcedure('getAllC', array('p1' => 3)));
+
+        $this->assertEquals(5, $handler->executeProcedure('serviceA.add', array('b' => 3, 'a' => 2)));
+        $this->assertEquals(2, $handler->executeProcedure('serviceA.subtract', array('b' => 3, 'a' => 5)));
+        $this->assertEquals(6, $handler->executeProcedure('serviceA.getAll', array('p2' => 4, 'p1' => -2)));
+        $this->assertEquals(10, $handler->executeProcedure('serviceA.getAll', array('p2' => 4, 'p3' => 8, 'p1' => -2)));
+
+        $this->assertEquals(5, $handler->executeProcedure('serviceB.add', array('b' => 3, 'a' => 2)));
+        $this->assertEquals(2, $handler->executeProcedure('serviceB.subtract', array('b' => 3, 'a' => 5)));
+        $this->assertEquals(6, $handler->executeProcedure('serviceB.getAll', array('p1' => 4)));
     }
 
     public function testBindPositionalArguments()
@@ -98,9 +129,20 @@ class ProcedureHandlerTest extends PHPUnit_Framework_TestCase
         $handler = new ProcedureHandler;
         $handler->withClassAndMethod('getAllA', 'A', 'getAll');
         $handler->withClassAndMethod('getAllB', 'B', 'getAll');
+        $handler->withServiceClass('serviceA', 'A');
+        $handler->withServiceClass('serviceB', new B());
         $this->assertEquals(6, $handler->executeProcedure('getAllA', array(4, -2)));
         $this->assertEquals(2, $handler->executeProcedure('getAllA', array(4, 0, -2)));
         $this->assertEquals(4, $handler->executeProcedure('getAllB', array(2)));
+
+        $this->assertEquals(5, $handler->executeProcedure('serviceA.add', array(2, 3)));
+        $this->assertEquals(2, $handler->executeProcedure('serviceA.subtract', array(5, 3)));
+        $this->assertEquals(6, $handler->executeProcedure('serviceA.getAll', array(4, -2)));
+        $this->assertEquals(2, $handler->executeProcedure('serviceA.getAll', array(4, 0, -2)));
+
+        $this->assertEquals(5, $handler->executeProcedure('serviceB.add', array(2, 3)));
+        $this->assertEquals(2, $handler->executeProcedure('serviceB.subtract', array(5, 3)));
+        $this->assertEquals(4, $handler->executeProcedure('serviceB.getAll', array(2)));
     }
 
     public function testRegisterNamedArguments()

@@ -49,6 +49,22 @@ class ProcedureHandler
     protected $beforeMethodName = '';
 
     /**
+     * List of service classes
+     *
+     * @access protected
+     * @var array
+     */
+    protected $serviceClasses = array();
+
+    /**
+     * Regex patten for detecting service calls
+     *
+     * @access protected
+     * @var string
+     */
+    protected $serviceDetectionPattern = '/(?<namespace>[\\w]+)\\.(?<method>[\\w]+)/i';
+
+    /**
      * Register a new procedure
      *
      * @access public
@@ -107,6 +123,14 @@ class ProcedureHandler
         return $this;
     }
 
+    public function withServiceClass($namespace, $class){
+        if(isset($this->serviceClasses[$namespace])){
+            throw new \RuntimeException('Class namespace already used');
+        }
+
+        $this->serviceClasses[$namespace] = $class;
+    }
+
     /**
      * Execute the procedure
      *
@@ -121,6 +145,15 @@ class ProcedureHandler
             return $this->executeCallback($this->callbacks[$procedure], $params);
         } elseif (isset($this->classes[$procedure]) && method_exists($this->classes[$procedure][0], $this->classes[$procedure][1])) {
             return $this->executeMethod($this->classes[$procedure][0], $this->classes[$procedure][1], $params);
+        }
+
+        preg_match($this->serviceDetectionPattern, $procedure, $matches);
+        if( isset($matches['namespace']) &&
+            isset($this->serviceClasses[$matches['namespace']]) &&
+            isset($matches['method']) &&
+            method_exists($this->serviceClasses[$matches['namespace']], $matches['method'])
+        ) {
+            return $this->executeMethod($this->serviceClasses[$matches['namespace']], $matches['method'], $params);
         }
 
         foreach ($this->instances as $instance) {
@@ -167,6 +200,19 @@ class ProcedureHandler
     {
         $instance = is_string($class) ? new $class : $class;
         $reflection = new ReflectionMethod($class, $method);
+
+        /**
+         * Have some safety when calling methods on a class dynamically
+         *
+         * None allowed method signatures :
+         *    private methodName (){}
+         *    protected methodName (){}
+         *    public _methodName (){}
+         *
+         */
+        if(!$reflection->isPublic() || substr($method, 0, 1) === '_' || $reflection->isInternal()){
+            throw new BadFunctionCallException('Method not found');
+        }
 
         $this->executeBeforeMethod($instance, $method);
 
