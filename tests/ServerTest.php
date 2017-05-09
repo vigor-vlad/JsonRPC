@@ -279,7 +279,7 @@ class ServerTest extends HeaderMockTest
         $logger = new DummyLogger();
         $server = new Server(
             $this->payload,
-            [],
+            array(),
             null,
             null,
             null,
@@ -318,7 +318,7 @@ class ServerTest extends HeaderMockTest
         $logger = new DummyLogger();
         $server = new Server(
             $this->payload,
-            [],
+            array(),
             null,
             null,
             null,
