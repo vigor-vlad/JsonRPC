@@ -5,6 +5,7 @@ namespace JsonRPC;
 use BadFunctionCallException;
 use Closure;
 use InvalidArgumentException;
+use JsonRPC\Smd\SmdBuilder;
 use ReflectionFunction;
 use ReflectionMethod;
 
@@ -306,5 +307,25 @@ class ProcedureHandler
         }
 
         return $params;
+    }
+
+    /**
+     * get the Service Mapping Description (SMD)
+     *
+     * @param string $target URI of the service endpoint
+     * @param bool $returnJSON
+     * @param SmdBuilder $SmdBuilder
+     * @return array|string
+     */
+    public function getSMD($target, $returnJSON = true, SmdBuilder $SmdBuilder = null) {
+        if(!$SmdBuilder) {
+            $SmdBuilder = new SmdBuilder();
+        }
+        return $SmdBuilder
+            ->withCallbacks($this->callbacks)
+            ->withClasses($this->classes)
+            ->withInstances($this->instances)
+            ->withServices($this->serviceClasses)
+            ->build($target, $returnJSON);
     }
 }
