@@ -18,7 +18,6 @@ interface LoggerInterface
      * @param $response
      * @param int $timeTaken
      * @param array $metadata
-     * @return
      */
     public function log($id, $method, $params, $response, $timeTaken = 0, $metadata = array());
 }
