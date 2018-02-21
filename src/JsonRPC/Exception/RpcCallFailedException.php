@@ -5,7 +5,7 @@ namespace JsonRPC\Exception;
 use Exception;
 
 /**
- * Class AccessDeniedException
+ * Class RpcCallFailedException
  *
  * @package JsonRPC\Exception
  * @author  Frederic Guillot
