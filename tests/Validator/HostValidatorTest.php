@@ -16,6 +16,14 @@ class HostValidatorTest extends PHPUnit_Framework_TestCase
         $this->assertNull(HostValidator::validate(array('127.0.0.1'), '127.0.0.1', '127.0.0.1'));
     }
 
+    public function testWithValidNetwork()
+    {
+        $this->assertNull(HostValidator::validate(array('192.168.10.1/24'), '192.168.10.1'),'test ip match');
+        $this->assertNull(HostValidator::validate(array('192.168.10.1/24'), '192.168.10.250'),'test ip match');
+        $this->setExpectedException('\JsonRPC\Exception\AccessDeniedException');
+        HostValidator::validate(array('192.168.10.1/24'), '192.168.11.1');
+    }
+
     public function testWithNotAuthorizedHosts()
     {
         $this->setExpectedException('\JsonRPC\Exception\AccessDeniedException');
