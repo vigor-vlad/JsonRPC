@@ -54,6 +54,25 @@ $server->getProcedureHandler()
 echo $server->execute();
 ```
 
+Callback binding from array:
+
+```php
+<?php
+
+use JsonRPC\Server;
+
+$callbacks = array(
+    'getA' => function() { return 'A'; },
+    'getB' => function() { return 'B'; },
+    'getC' => function() { return 'C'; }
+);
+
+$server = new Server();
+$server->getProcedureHandler()->withCallbackArray($callbacks);
+
+echo $server->execute();
+```
+
 Class/Method binding:
 
 ```php
@@ -85,7 +104,49 @@ $procedureHandler->withClassAndMethod('doSomething', 'Api');
 $procedureHandler->withObject(new Api());
 
 echo $server->execute();
+```
 
+Class/Method binding from array:
+
+```php
+<?php
+
+use JsonRPC\Server;
+
+class MathApi
+{
+    public function addition($arg1, $arg2)
+    {
+        return $arg1 + $arg2;
+    }
+
+    public function subtraction($arg1, $arg2)
+    {
+        return $arg1 - $arg2;
+    }
+
+    public function multiplication($arg1, $arg2)
+    {
+        return $arg1 * $arg2;
+    }
+
+    public function division($arg1, $arg2)
+    {
+        return $arg1 / $arg2;
+    }
+}
+
+$callbacks = array(
+    'addition'       => array( 'MathApi', addition ),
+    'subtraction'    => array( 'MathApi', subtraction ),
+    'multiplication' => array( 'MathApi', multiplication ),
+    'division'       => array( 'MathApi', division )
+);
+
+$server = new Server();
+$server->getProcedureHandler()->withClassAndMethodArray($callbacks);
+
+echo $server->execute();
 ```
 
 Server Middleware:
