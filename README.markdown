@@ -3,9 +3,6 @@ JsonRPC PHP Client and Server
 
 A simple Json-RPC client/server that just works.
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fguillot/JsonRPC/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fguillot/JsonRPC/?branch=master)
-[![Build Status](https://travis-ci.org/fguillot/JsonRPC.svg?branch=master)](https://travis-ci.org/fguillot/JsonRPC)
-
 Features
 --------
 
