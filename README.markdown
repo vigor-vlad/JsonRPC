@@ -3,6 +3,8 @@ JsonRPC PHP Client and Server
 
 A simple Json-RPC client/server that just works.
 
+Forked From fguillot/json-rpc
+
 Features
 --------
 
@@ -17,13 +19,14 @@ Features
 Author
 ------
 
-Frédéric Guillot
+Original Author: Frédéric Guillot
+Steven Lewis
 
 Installation with Composer
 --------------------------
 
 ```bash
-composer require fguillot/json-rpc @stable
+composer require srjlewis/json-rpc @stable
 ```
 
 Examples

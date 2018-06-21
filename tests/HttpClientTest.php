@@ -122,7 +122,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                     'timeout' => 5,
                     'max_redirects' => 2,
                     'header' => implode("\r\n", array(
-                        'User-Agent: JSON-RPC PHP Client <https://github.com/fguillot/JsonRPC>',
+                        'User-Agent: JSON-RPC PHP Client <https://github.com/srjlewis/JsonRPC>',
                         'Content-Type: application/json',
                         'Accept: application/json',
                         'Connection: close',
@@ -178,7 +178,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => 'test',
                 CURLOPT_HTTPHEADER => array(
-                    'User-Agent: JSON-RPC PHP Client <https://github.com/fguillot/JsonRPC>',
+                    'User-Agent: JSON-RPC PHP Client <https://github.com/srjlewis/JsonRPC>',
                     'Content-Type: application/json',
                     'Accept: application/json',
                     'Connection: close',

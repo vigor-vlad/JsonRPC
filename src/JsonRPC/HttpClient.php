@@ -38,7 +38,7 @@ class HttpClient
      * @var array
      */
     protected $headers = array(
-        'User-Agent: JSON-RPC PHP Client <https://github.com/fguillot/JsonRPC>',
+        'User-Agent: JSON-RPC PHP Client <https://github.com/srjlewis/JsonRPC>',
         'Content-Type: application/json',
         'Accept: application/json',
         'Connection: close',

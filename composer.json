@@ -1,14 +1,20 @@
 {
-    "name": "fguillot/json-rpc",
+    "name": "srjlewis/json-rpc",
     "description": "Simple Json-RPC client/server library that just works",
-    "homepage": "https://github.com/fguillot/JsonRPC",
+    "homepage": "https://github.com/srjlewis/JsonRPC",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Frédéric Guillot"
+        },
+        {
+            "name": "Steven Lewis"
         }
     ],
+    "replace": {
+        "fguillot/json-rpc": "1.*"
+    },
     "require": {
         "php": ">=5.3.4"
     },
