@@ -20,6 +20,7 @@ Author
 ------
 
 Original Author: Frédéric Guillot
+
 Steven Lewis
 
 Installation with Composer
