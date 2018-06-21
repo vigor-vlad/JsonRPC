@@ -113,7 +113,7 @@ class ResponseBuilderTest extends PHPUnit_Framework_TestCase
             ->withException(new InvalidArgumentException('Test'))
             ->build();
 
-        $this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params"},"id":123}', $response);
+        $this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params","data":"Test"},"id":123}', $response);
     }
 
     public function testBuildResponseWithBadFunctionCallException()

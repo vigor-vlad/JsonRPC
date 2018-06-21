@@ -310,6 +310,7 @@ class ResponseBuilder
         } catch (InvalidArgumentException $e) {
             $this->errorCode = -32602;
             $this->errorMessage = 'Invalid params';
+            $this->errorData = $this->exception->getMessage();
         } catch (ResponseEncodingFailureException $e) {
             $this->errorCode = -32603;
             $this->errorMessage = 'Internal error';

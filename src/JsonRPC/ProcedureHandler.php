@@ -133,6 +133,38 @@ class ProcedureHandler
     }
 
     /**
+     * Register multiple procedures from array
+     *
+     * @access public
+     * @param  array  $callbacks Array with procedure names (array keys) and callbacks (array values)
+     * @return $this
+     */
+    public function withCallbackArray($callbacks)
+    {
+        foreach ($callbacks as $procedure => $callback) {
+            $this->withCallback($procedure, $callback);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Bind multiple procedures to classes from array
+     *
+     * @access public
+     * @param  array  $callbacks Array with procedure names (array keys) and class and method names (array values)
+     * @return $this
+     */
+    public function withClassAndMethodArray($callbacks)
+    {
+        foreach ($callbacks as $procedure => $callback) {
+            $this->withClassAndMethod($procedure, $callback[0], $callback[1]);
+        }
+
+        return $this;
+    }
+
+    /**
      * Execute the procedure
      *
      * @access public
@@ -297,7 +329,7 @@ class ProcedureHandler
         foreach ($methodParams as $p) {
             $name = $p->getName();
 
-            if (isset($requestParams[$name])) {
+            if (array_key_exists($name, $requestParams)) {
                 $params[$name] = $requestParams[$name];
             } elseif ($p->isDefaultValueAvailable()) {
                 $params[$name] = $p->getDefaultValue();
