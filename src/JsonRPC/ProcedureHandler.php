@@ -58,7 +58,7 @@ class ProcedureHandler
     protected $serviceClasses = array();
 
     /**
-     * Regex patten for detecting service calls
+     * Regex pattern for detecting service calls
      *
      * @access protected
      * @var string
@@ -124,12 +124,13 @@ class ProcedureHandler
         return $this;
     }
 
-    public function withServiceClass($namespace, $class){
-        if(isset($this->serviceClasses[$namespace])){
+    public function withServiceClass($namespace, $class) {
+        if (isset($this->serviceClasses[$namespace])) {
             throw new \RuntimeException('Class namespace already used');
         }
 
         $this->serviceClasses[$namespace] = $class;
+        return $this;
     }
 
     /**
@@ -180,10 +181,8 @@ class ProcedureHandler
             return $this->executeMethod($this->classes[$procedure][0], $this->classes[$procedure][1], $params);
         }
 
-        preg_match($this->serviceDetectionPattern, $procedure, $matches);
-        if( isset($matches['namespace']) &&
+        if (preg_match($this->serviceDetectionPattern, $procedure, $matches) &&
             isset($this->serviceClasses[$matches['namespace']]) &&
-            isset($matches['method']) &&
             method_exists($this->serviceClasses[$matches['namespace']], $matches['method'])
         ) {
             return $this->executeMethod($this->serviceClasses[$matches['namespace']], $matches['method'], $params);
@@ -243,7 +242,7 @@ class ProcedureHandler
          *    public _methodName (){}
          *
          */
-        if(!$reflection->isPublic() || substr($method, 0, 1) === '_' || $reflection->isInternal()){
+        if (!$reflection->isPublic() || substr($method, 0, 1) === '_' || $reflection->isInternal()) {
             throw new BadFunctionCallException('Method not found');
         }
 
@@ -350,7 +349,7 @@ class ProcedureHandler
      * @return array|string
      */
     public function getSMD($target, $returnJSON = true, SmdBuilder $SmdBuilder = null) {
-        if(!$SmdBuilder) {
+        if (!$SmdBuilder) {
             $SmdBuilder = new SmdBuilder();
         }
         return $SmdBuilder
